@@ -2,7 +2,6 @@
 
 // use modernizr to check for canvas etc
 
-// 0.0001 
     var colorApollonius    = "#ccc",
         colorPerpendicular = "#fcc",
         colorPoint         = "#aca",
