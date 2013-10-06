@@ -2,11 +2,12 @@
 
 // use modernizr to check for canvas etc
 
+// 0.0001 
     var colorApollonius    = "#ccc",
         colorPerpendicular = "#fcc",
         colorPoint         = "#aca",
         strokeWidth        = 1,
-        canvas             = document.getElementById('apollonius'),
+        canvas             = document.getElementById('canvasApollonius'),
         context            = canvas.getContext('2d'),
         centerX,
         centerY,
@@ -22,12 +23,6 @@
         y_a,
         x_b,
         y_b,
-        Xprev,
-        Yprev,
-        Rprev,
-        X2prev,
-        Y2prev,
-        R2prev,
         mouseX,
         mouseY;
 
@@ -36,7 +31,7 @@
             canvas.width  = $(window).width();
             canvas.height = $(window).height();
             centerX       = Math.round(0.8 * canvas.width);
-            centerY       = Math.round(0.8 * canvas.height);  
+            centerY       = Math.round(0.8 * canvas.height);
             mouseX        = mouseX === undefined ? Math.round(0.8 * canvas.width) : mouseX;
             mouseY        = mouseY === undefined ? Math.round(0.2 * canvas.width) : mouseY;
         },
@@ -70,16 +65,13 @@
                 x_b = -5 * Math.cos(t);
                 y_b = -5 * Math.sin(t);
 
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                this.drawPoints();
-                this.drawPerpendicularCircleThroughPoint(mouseX, mouseY);
-                this.drawApolloniusCircleThroughPoint(mouseX, mouseY);
+                this.drawPicture(mouseX, mouseY);
 
                 t += 0.001;
             }.bind(this), 20);
         },
 
-        drawApolloniusCircle: function(k, inverse) {
+        calculateApolloniusCircle: function(k, inverse) {
             var x,
                 y,
                 r,
@@ -91,24 +83,14 @@
             y = (k * k * y_b - y_a) / (k * k - 1);
             r = Math.sqrt( Math.pow((x_a - k * k * x_b) / (k * k - 1), 2) + Math.pow((y_a - k * k * y_b) / (k * k - 1), 2) - x_a * x_a - y_a * y_a + k * k * x_b * x_b + k * k * y_b * y_b);
 
-            arcCenter = Math.random() * 2 * Math.PI;
-
             X = centerX + 10 * x;
             Y = centerY + 10 * y;
             R = 10 * r;
 
-            context.beginPath();
-            context.arc(X, Y, R, 0, 6.3, false);
-            context.lineWidth = strokeWidth;
-            context.strokeStyle = colorApollonius;
-            context.stroke();
-
-            Xprev = X;
-            Yprev = Y;
-            Rprev = R;
+            return {x: X, y: Y, r: R};
         },
 
-        drawApolloniusCircleThroughPoint: function(x, y) {
+        calculateApolloniusCircleThroughPoint: function(x, y) {
             var xp_a = centerX + 10 * x_a;
             var yp_a = centerY + 10 * y_a;
             var xp_b = centerX + 10 * x_b;
@@ -120,10 +102,10 @@
             var k_inverse = distance_b / distance_a;
 
             if (k <= 1) {
-                this.drawApolloniusCircle(k, false);
+                return this.calculateApolloniusCircle(k, false);
             } else {
-                // drawApolloniusCircle(k_inverse, true);     
-                this.drawApolloniusCircle(k, false);
+                // calculateApolloniusCircle(k_inverse, true);
+                return this.calculateApolloniusCircle(k, false);
             }
         },
 
@@ -151,25 +133,36 @@
             context.lineWidth = strokeWidth;
             context.strokeStyle = colorPerpendicular;
             context.stroke();
-
-            X2prev = X;
-            Y2prev = Y;
-            R2prev = R;
         },
 
         drawPicture: function (intersectionX, intersectionY) {
+            var c;
+
             context.clearRect(0, 0, canvas.width, canvas.height);
             this.drawPoints();
             this.drawPerpendicularCircleThroughPoint(intersectionX, intersectionY);
-            this.drawApolloniusCircleThroughPoint(intersectionX, intersectionY);
+
+            // context.beginPath();
+            // context.arc(c.x, c.y, c.r, 0, 6.3, false);
+            // context.lineWidth = strokeWidth;
+            // context.strokeStyle = colorPerpendicular;
+            // context.stroke();
+
+            c = this.calculateApolloniusCircleThroughPoint(intersectionX, intersectionY);
+
+            context.beginPath();
+            context.arc(c.x, c.y, c.r, 0, 6.3, false);
+            context.lineWidth = strokeWidth;
+            context.strokeStyle = colorApollonius;
+            context.stroke();
         }
     };
 
-    $("body").mousemove(function(e){
+    $("#canvasApollonius").mousemove(function(e){
         mouseX = e.pageX;
         mouseY = e.pageY;
         apollonius.drawPicture(mouseX, mouseY);
-    }, 20);
+    });
 
     $(window).resize(function () {
         apollonius.init();
@@ -177,5 +170,4 @@
 
     apollonius.init();
     apollonius.run();
-
 })($);
