@@ -1,5 +1,9 @@
 (function ($) {
 
+    function distance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
 // use modernizr to check for canvas etc
 
     var colorApollonius    = "#ccc",
@@ -95,8 +99,8 @@
             var xp_b = centerX + x_b;
             var yp_b = centerY + y_b;
 
-            var distance_a = Math.sqrt(Math.pow((x - xp_a), 2) + Math.pow((y - yp_a), 2));
-            var distance_b = Math.sqrt(Math.pow((x - xp_b), 2) + Math.pow((y - yp_b), 2));
+            var distance_a = distance(x, y, xp_a, yp_a);
+            var distance_b = distance(x, y, xp_b, yp_b);
             var k = distance_a / distance_b;
             var k_inverse = distance_b / distance_a;
 
