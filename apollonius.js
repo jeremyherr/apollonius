@@ -84,7 +84,7 @@
 
             x = (k * k * x_b - x_a) / (k * k - 1);
             y = (k * k * y_b - y_a) / (k * k - 1);
-            r = Math.sqrt( Math.pow((x_a - k * k * x_b) / (k * k - 1), 2) + Math.pow((y_a - k * k * y_b) / (k * k - 1), 2) - x_a * x_a - y_a * y_a + k * k * x_b * x_b + k * k * y_b * y_b);
+            r = distance(x, y, mouseX - centerX, mouseY - centerY);
 
             X = centerX + x;
             Y = centerY + y;
