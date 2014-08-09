@@ -47,7 +47,7 @@
               point = points[i];
 
               context.beginPath();
-              context.arc(centerX + 10 * point.x, centerY + 10 * point.y, 3, 0, 2 * Math.PI, false);
+              context.arc(centerX + point.x, centerY + point.y, 3, 0, 2 * Math.PI);
               context.fillStyle = colorPoint;
               context.fill();
               context.lineWidth = 1;
@@ -57,17 +57,17 @@
         },
 
         run: function () {
-            var t = 0;
+            var t = 0.001;
             setInterval(function () {
-                x_a =  5 * Math.cos(t);
-                y_a =  5 * Math.sin(t);
-                x_b = -5 * Math.cos(t);
-                y_b = -5 * Math.sin(t);
+                x_a =  50 * Math.cos(t);
+                y_a =  50 * Math.sin(t);
+                x_b = -50 * Math.cos(t);
+                y_b = -50 * Math.sin(t);
 
                 this.drawPicture(mouseX, mouseY);
 
                 t += 0.001;
-            }.bind(this), 20);
+            }.bind(this), 15);
         },
 
         calculateApolloniusCircle: function(k, inverse) {
@@ -82,18 +82,18 @@
             y = (k * k * y_b - y_a) / (k * k - 1);
             r = Math.sqrt( Math.pow((x_a - k * k * x_b) / (k * k - 1), 2) + Math.pow((y_a - k * k * y_b) / (k * k - 1), 2) - x_a * x_a - y_a * y_a + k * k * x_b * x_b + k * k * y_b * y_b);
 
-            X = centerX + 10 * x;
-            Y = centerY + 10 * y;
-            R = 10 * r;
+            X = centerX + x;
+            Y = centerY + y;
+            R = r;
 
             return {x: X, y: Y, r: R};
         },
 
         calculateApolloniusCircleThroughPoint: function(x, y) {
-            var xp_a = centerX + 10 * x_a;
-            var yp_a = centerY + 10 * y_a;
-            var xp_b = centerX + 10 * x_b;
-            var yp_b = centerY + 10 * y_b;
+            var xp_a = centerX + x_a;
+            var yp_a = centerY + y_a;
+            var xp_b = centerX + x_b;
+            var yp_b = centerY + y_b;
 
             var distance_a = Math.sqrt(Math.pow((x - xp_a), 2) + Math.pow((y - yp_a), 2));
             var distance_b = Math.sqrt(Math.pow((x - xp_b), 2) + Math.pow((y - yp_b), 2));
@@ -116,17 +116,16 @@
                 Y,
                 R;
 
-            x_c = (x_c - centerX) / 10;
-            y_c = (y_c - centerY) / 10;
+            x_c = (x_c - centerX);
+            y_c = (y_c - centerY);
 
             x = 0.5 * (y_b - y_c + (x_a * x_a - x_c * x_c) / (y_c - y_a) - (x_a * x_a - x_b * x_b) / (y_b - y_a)) / ( (x_a - x_c) / (y_c - y_a) - (x_a - x_b) / (y_b - y_a) );
             y = (x - 0.5 * (x_a + x_c)) * (x_a - x_c) / (y_c - y_a) + 0.5 * (y_a + y_c);
             r = Math.sqrt(Math.pow(x - x_a, 2) + Math.pow(y - y_a, 2));
 
-            X = centerX + 10 * x;
-            Y = centerY + 10 * y;
-            R = 10 * r;
-
+            X = centerX + x;
+            Y = centerY + y;
+            R = r;
             context.beginPath();
             context.arc(X, Y, R, 0, 6.3, false);
             context.lineWidth = strokeWidth;
