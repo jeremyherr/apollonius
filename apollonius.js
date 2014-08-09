@@ -1,5 +1,9 @@
 (function ($) {
 
+    function distance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
 // use modernizr to check for canvas etc
 
     var colorApollonius    = "#ccc",
@@ -8,20 +12,12 @@
         strokeWidth        = 1,
         canvas             = document.getElementById('canvasApollonius'),
         context            = canvas.getContext('2d'),
-        centerX,
-        centerY,
-        radius             = 70,
-        arcSpan            = 7,
-        i,
-        k,
-        point,
-        points,
-        circle,
-        circles,
-        x_a,
-        y_a,
-        x_b,
-        y_b,
+        originX,
+        originY,
+        focus1X,
+        focus1Y,
+        focus2X,
+        focus2Y,
         mouseX,
         mouseY;
 
@@ -29,25 +25,26 @@
         init: function () {
             canvas.width  = $(window).width();
             canvas.height = $(window).height();
-            centerX       = Math.round(0.8 * canvas.width);
-            centerY       = Math.round(0.8 * canvas.height);
+            originX       = Math.round(0.8 * canvas.width);
+            originY       = Math.round(0.8 * canvas.height);
             mouseX        = mouseX === undefined ? Math.round(0.8 * canvas.width) : mouseX;
             mouseY        = mouseY === undefined ? Math.round(0.2 * canvas.width) : mouseY;
         },
 
         drawPoints: function () {
-
-            var points = [
-              { x: x_a,    y: y_a},
-              { x: x_b,    y: y_b},
-              { x: mouseX, y: mouseY}
+            var i,
+                point,
+                points = [
+              { x: focus1X, y: focus1Y},
+              { x: focus2X, y: focus2Y},
+              { x: mouseX,  y: mouseY}
             ];
 
             for (i = points.length - 1; i >= 0; i--) {
               point = points[i];
 
               context.beginPath();
-              context.arc(centerX + 10 * point.x, centerY + 10 * point.y, 3, 0, 2 * Math.PI, false);
+              context.arc(originX + point.x, originY + point.y, 3, 0, 6.2832);
               context.fillStyle = colorPoint;
               context.fill();
               context.lineWidth = 1;
@@ -57,81 +54,59 @@
         },
 
         run: function () {
-            var t = 0;
-            setInterval(function () {
-                x_a =  5 * Math.cos(t);
-                y_a =  5 * Math.sin(t);
-                x_b = -5 * Math.cos(t);
-                y_b = -5 * Math.sin(t);
+            var t = 0.001;
+            window.setInterval(function () {
+                focus1X =  50 * Math.cos(t);
+                focus1Y =  50 * Math.sin(t);
+                focus2X = -50 * Math.cos(t);
+                focus2Y = -50 * Math.sin(t);
 
                 this.drawPicture(mouseX, mouseY);
 
                 t += 0.001;
-            }.bind(this), 20);
+            }.bind(this), 15);
         },
 
-        calculateApolloniusCircle: function(k, inverse) {
+        calculateApolloniusCircle: function(k) {
             var x,
                 y,
                 r,
-                X,
-                Y,
-                R;
+                kk = k * k,
+                kkMinus1 = kk - 1;
 
-            x = (k * k * x_b - x_a) / (k * k - 1);
-            y = (k * k * y_b - y_a) / (k * k - 1);
-            r = Math.sqrt( Math.pow((x_a - k * k * x_b) / (k * k - 1), 2) + Math.pow((y_a - k * k * y_b) / (k * k - 1), 2) - x_a * x_a - y_a * y_a + k * k * x_b * x_b + k * k * y_b * y_b);
+            x = (kk * focus2X - focus1X) / kkMinus1;
+            y = (kk * focus2Y - focus1Y) / kkMinus1;
+            r = distance(x, y, mouseX - originX, mouseY - originY);
 
-            X = centerX + 10 * x;
-            Y = centerY + 10 * y;
-            R = 10 * r;
-
-            return {x: X, y: Y, r: R};
+            return {x: originX + x, y: originY + y, r: r};
         },
 
         calculateApolloniusCircleThroughPoint: function(x, y) {
-            var xp_a = centerX + 10 * x_a;
-            var yp_a = centerY + 10 * y_a;
-            var xp_b = centerX + 10 * x_b;
-            var yp_b = centerY + 10 * y_b;
+            var xp_a = originX + focus1X;
+            var yp_a = originY + focus1Y;
+            var xp_b = originX + focus2X;
+            var yp_b = originY + focus2Y;
 
-            var distance_a = Math.sqrt(Math.pow((x - xp_a), 2) + Math.pow((y - yp_a), 2));
-            var distance_b = Math.sqrt(Math.pow((x - xp_b), 2) + Math.pow((y - yp_b), 2));
+            var distance_a = distance(x, y, xp_a, yp_a);
+            var distance_b = distance(x, y, xp_b, yp_b);
             var k = distance_a / distance_b;
-            var k_inverse = distance_b / distance_a;
 
-            if (k <= 1) {
-                return this.calculateApolloniusCircle(k, false);
-            } else {
-                // calculateApolloniusCircle(k_inverse, true);
-                return this.calculateApolloniusCircle(k, false);
-            }
+            return this.calculateApolloniusCircle(k);
         },
 
-        drawPerpendicularCircleThroughPoint: function(x_c, y_c) {
+        calculatePerpendicularCircleThroughPoint: function(x_c, y_c) {
             var x,
                 y,
-                r,
-                X,
-                Y,
-                R;
+                r;
 
-            x_c = (x_c - centerX) / 10;
-            y_c = (y_c - centerY) / 10;
+            x_c = (x_c - originX);
+            y_c = (y_c - originY);
 
-            x = 0.5 * (y_b - y_c + (x_a * x_a - x_c * x_c) / (y_c - y_a) - (x_a * x_a - x_b * x_b) / (y_b - y_a)) / ( (x_a - x_c) / (y_c - y_a) - (x_a - x_b) / (y_b - y_a) );
-            y = (x - 0.5 * (x_a + x_c)) * (x_a - x_c) / (y_c - y_a) + 0.5 * (y_a + y_c);
-            r = Math.sqrt(Math.pow(x - x_a, 2) + Math.pow(y - y_a, 2));
+            x = 0.5 * (focus2Y - y_c + (focus1X * focus1X - x_c * x_c) / (y_c - focus1Y) - (focus1X * focus1X - focus2X * focus2X) / (focus2Y - focus1Y)) / ( (focus1X - x_c) / (y_c - focus1Y) - (focus1X - focus2X) / (focus2Y - focus1Y) );
+            y = (x - 0.5 * (focus1X + x_c)) * (focus1X - x_c) / (y_c - focus1Y) + 0.5 * (focus1Y + y_c);
+            r = distance(x, y, focus1X, focus1Y);
 
-            X = centerX + 10 * x;
-            Y = centerY + 10 * y;
-            R = 10 * r;
-
-            context.beginPath();
-            context.arc(X, Y, R, 0, 6.3, false);
-            context.lineWidth = strokeWidth;
-            context.strokeStyle = colorPerpendicular;
-            context.stroke();
+            return {x: originX + x, y: originY + y, r: r};
         },
 
         drawPicture: function (intersectionX, intersectionY) {
@@ -139,18 +114,18 @@
 
             context.clearRect(0, 0, canvas.width, canvas.height);
             this.drawPoints();
-            this.drawPerpendicularCircleThroughPoint(intersectionX, intersectionY);
+            c = this.calculatePerpendicularCircleThroughPoint(intersectionX, intersectionY);
 
-            // context.beginPath();
-            // context.arc(c.x, c.y, c.r, 0, 6.3, false);
-            // context.lineWidth = strokeWidth;
-            // context.strokeStyle = colorPerpendicular;
-            // context.stroke();
+            context.beginPath();
+            context.arc(c.x, c.y, c.r, 0, 6.2832);
+            context.lineWidth = strokeWidth;
+            context.strokeStyle = colorPerpendicular;
+            context.stroke();
 
             c = this.calculateApolloniusCircleThroughPoint(intersectionX, intersectionY);
 
             context.beginPath();
-            context.arc(c.x, c.y, c.r, 0, 6.3, false);
+            context.arc(c.x, c.y, c.r, 0, 6.2832);
             context.lineWidth = strokeWidth;
             context.strokeStyle = colorApollonius;
             context.stroke();
