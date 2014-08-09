@@ -130,8 +130,9 @@
             X = centerX + x;
             Y = centerY + y;
             R = r;
+
             context.beginPath();
-            context.arc(X, Y, R, 0, 6.3, false);
+            context.arc(X, Y, R, 0, 6.3);
             context.lineWidth = strokeWidth;
             context.strokeStyle = colorPerpendicular;
             context.stroke();
@@ -145,7 +146,7 @@
             this.drawPerpendicularCircleThroughPoint(intersectionX, intersectionY);
 
             // context.beginPath();
-            // context.arc(c.x, c.y, c.r, 0, 6.3, false);
+            // context.arc(c.x, c.y, c.r, 0, 6.3);
             // context.lineWidth = strokeWidth;
             // context.strokeStyle = colorPerpendicular;
             // context.stroke();
@@ -153,7 +154,7 @@
             c = this.calculateApolloniusCircleThroughPoint(intersectionX, intersectionY);
 
             context.beginPath();
-            context.arc(c.x, c.y, c.r, 0, 6.3, false);
+            context.arc(c.x, c.y, c.r, 0, 6.3);
             context.lineWidth = strokeWidth;
             context.strokeStyle = colorApollonius;
             context.stroke();
