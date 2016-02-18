@@ -1,4 +1,4 @@
-(function ($) {
+(function (window, $) {
 
     function distance(x1, y1, x2, y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -138,10 +138,10 @@
         apollonius.drawPicture(mouseX, mouseY);
     });
 
-    $(window).resize(function () {
+    window.addEventListener('resize', function() {
         apollonius.init();
     });
 
     apollonius.init();
     apollonius.run();
-})($);
+})(window, $);
