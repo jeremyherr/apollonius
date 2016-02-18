@@ -132,9 +132,9 @@
         }
     };
 
-    $("#canvasApollonius").mousemove(function(e){
-        mouseX = e.pageX;
-        mouseY = e.pageY;
+    canvas.addEventListener('mousemove', function(evt) {
+        mouseX = evt.pageX;
+        mouseY = evt.pageY;
         apollonius.drawPicture(mouseX, mouseY);
     });
 
