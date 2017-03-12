@@ -53,21 +53,22 @@
             }
         },
 
-        run: function () {
-            var t = 0.001;
-
+        run: function (startTime) {
+            var millisecondsPerFrame = 1000 / 60;
             function step() {
-                focus1X =  50 * Math.cos(t);
-                focus1Y =  50 * Math.sin(t);
-                focus2X = -50 * Math.cos(t);
-                focus2Y = -50 * Math.sin(t);
+                var timeDelta = Number(new Date()) - startTime;
+                var theta = 0.001 * timeDelta / millisecondsPerFrame;
+
+                focus1X =  50 * Math.cos(theta);
+                focus1Y =  50 * Math.sin(theta);
+                focus2X = -50 * Math.cos(theta);
+                focus2Y = -50 * Math.sin(theta);
 
                 this.drawPicture(mouseX, mouseY);
 
-                t += 0.001;
-                window.requestAnimationFrame(step.bind());
+                window.requestAnimationFrame(step.bind(this));
             }
-            window.requestAnimationFrame(step);
+            window.requestAnimationFrame(step.bind(this));
         },
 
         calculateApolloniusCircle: function(k) {
@@ -146,5 +147,5 @@
     });
 
     apollonius.init();
-    apollonius.run();
+    apollonius.run(Number(new Date()));
 })(window, $);
