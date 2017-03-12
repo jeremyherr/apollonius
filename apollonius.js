@@ -55,7 +55,8 @@
 
         run: function () {
             var t = 0.001;
-            window.setInterval(function () {
+
+            function step() {
                 focus1X =  50 * Math.cos(t);
                 focus1Y =  50 * Math.sin(t);
                 focus2X = -50 * Math.cos(t);
@@ -64,7 +65,9 @@
                 this.drawPicture(mouseX, mouseY);
 
                 t += 0.001;
-            }.bind(this), 15);
+                window.requestAnimationFrame(step.bind());
+            }
+            window.requestAnimationFrame(step);
         },
 
         calculateApolloniusCircle: function(k) {
